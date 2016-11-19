@@ -8,15 +8,14 @@ var width = 1200,
     height = 800;
 
 var nodes = d3.range(10).map(function() { return {radius: Math.random() * 300 + 4}; }),
-    root = nodes[0],
-    color = d3.scale.category20();
+    root = nodes;
 
 root.radius = 0;
 root.fixed = true;
 
 var force = d3.layout.force()
-    .gravity(0.05)
-    .charge(function(d, i) { return i ? 0 : -2000; })
+    .gravity(0.03)
+    .charge(function(d, i) { return i ? 0 : -3000; })
     .nodes(nodes)
     .size([width, height]);
 
@@ -27,18 +26,16 @@ var svg = d3.select("body").append("svg")
     .attr("width", width)
     .attr("height", height);
 
-
-svg.selectAll("image")
-			.data(nodes.slice(1))
+// load the data
+d3.json("data.json", function(error, data) {
+    svg.selectAll("image")
+            .data(nodes.slice(1))
             .enter().append("svg:image")
                     .attr("width", 290)
                     .attr("height", 218)
-                    .transition().ease('elastic').duration(5000)
-                    .style("opacity", 0.9)
-                    .attr("style", "outline: 10px solid #720;") 
-                    .attr("xlink:href","testImages.jpg");
-
-
+                    .attr("style", "outline: 10px solid #720;")
+                    .attr("xlink:href", function(d,i) { return data[i].img; });
+});
 
 force.on("tick", function(e) {
 		  var q = d3.geom.quadtree(nodes),
